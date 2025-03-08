@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Змейка</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            animation: changeBackground 9s infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 40px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .play-button {
+            background: none;
+            border: 2px solid #333;
+            padding: 10px 30px;
+            font-size: 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 200px;
+        }
+
+        .play-button:hover {
+            background: #333;
+            color: white;
+        }
+
+        .play-online {
+            background: none;
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .play-online:hover {
+            background: #4CAF50;
+            color: white;
+        }
+
+        #gameContainer, #onlineGameContainer {
+            display: none;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #gameCanvas, #onlineGameCanvas {
+            border: 2px solid #333;
+            border-radius: 10px;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 24px;
+            margin: 10px 0;
+            color: #333;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .scores-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+
+        .player-score {
+            color: #4CAF50;
+        }
+
+        .bot-score {
+            color: #FF5722;
+        }
+
+        /* Стили для отзывов */
+        .reviews-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .review-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .review-input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .review-input:focus {
+            border-color: #4CAF50;
+        }
+
+        .review-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .submit-review {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .submit-review:hover {
+            background: #45a049;
+        }
+
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .review-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .review-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .review-date {
+            color: #888;
+        }
+
+        .review-text {
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .reviews-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .shop-button {
+            background: none;
+            border: 2px solid #9C27B0;
+            color: #9C27B0;
+        }
+
+        .shop-button:hover {
+            background: #9C27B0;
+            color: white;
+        }
+
+        #shopContainer {
+            display: none;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .shop-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .total-coins {
+            text-align: center;
+            font-size: 20px;
+            color: #9C27B0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .shop-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .shop-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .item-image {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 10px;
+            border-radius: 10px;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .item-price {
+            color: #9C27B0;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .buy-button {
+            background: #9C27B0;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .buy-button:hover {
+            background: #7B1FA2;
+        }
+
+        .buy-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .owned {
+            background: #4CAF50;
+        }
+
+        .owned:hover {
+            background: #45a049;
+        }
+
+        @keyframes changeBackground {
+            0% {
+                background-color: black;
+            }
+            33% {
+                background-color: white;
+            }
+            66% {
+                background-color: orange;
+            }
+            100% {
+                background-color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <button class="play-button" onclick="toggleGame('single')">Играть</button>
+        <button class="play-button play-online" onclick="toggleGame('online')">Играть онлайн</button>
+        <button class="play-button shop-button" onclick="toggleShop()">Магазин</button>
+    </div>
+    <div id="gameContainer">
+        <div class="score">Счёт: <span id="score">0</span></div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+    </div>
+    <div id="onlineGameContainer">
+        <div class="scores-container">
+            <div class="score player-score">Игрок: <span id="playerScore">0</span></div>
+            <div class="score bot-score">Бот: <span id="botScore">0</span></div>
+        </div>
+        <canvas id="onlineGameCanvas" width="600" height="400"></canvas>
+    </div>
+
+    <div class="reviews-section">
+        <h2 class="reviews-title">Отзывы игроков</h2>
+        <form class="review-form" onsubmit="submitReview(event)">
+            <input type="text" class="review-input" placeholder="Ваше имя" id="reviewName" required>
+            <textarea class="review-input review-textarea" placeholder="Ваш отзыв" id="reviewText" required></textarea>
+            <button type="submit" class="submit-review">Отправить отзыв</button>
+        </form>
+        <div class="reviews-list" id="reviewsList">
+            <!-- Отзывы будут добавляться здесь -->
+        </div>
+    </div>
+
+    <div id="shopContainer">
+        <h2 class="shop-title">Магазин</h2>
+        <div class="total-coins">Монеты: <span id="totalCoins">0</span></div>
+        <div class="shop-items">
+            <div class="shop-item">
+                <div class="item-image" style="background: #FF5722;"></div>
+                <div class="item-name">Оранжевая змейка</div>
+                <div class="item-price">100 монет</div>
+                <button class="buy-button" onclick="buyItem('orange_snake', 100)">Купить</button>
+            </div>
+            <div class="shop-item">
+                <div class="item-image" style="background: #2196F3;"></div>
+                <div class="item-name">Синяя змейка</div>
+                <div class="item-price">150 монет</div>
+                <button class="buy-button" onclick="buyItem('blue_snake', 150)">Купить</button>
+            </div>
+            <div class="shop-item">
+                <div class="item-image" style="background: linear-gradient(45deg, #FF5722, #2196F3);"></div>
+                <div class="item-name">Радужная змейка</div>
+                <div class="item-price">300 монет</div>
+                <button class="buy-button" onclick="buyItem('rainbow_snake', 300)">Купить</button>
+            </div>
+            <div class="shop-item">
+                <div class="item-image" style="background: #FFD700;"></div>
+                <div class="item-name">Двойные очки</div>
+                <div class="item-price">500 монет</div>
+                <button class="buy-button" onclick="buyItem('double_points', 500)">Купить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameStarted = false;
+        let snake = [];
+        let botSnake = [];
+        let food = {};
+        let direction = 'right';
+        let botDirection = 'left';
+        let score = 0;
+        let botScore = 0;
+        const gridSize = 20;
+        const canvas = document.getElementById('gameCanvas');
+        const onlineCanvas = document.getElementById('onlineGameCanvas');
+        const ctx = canvas.getContext('2d');
+        const onlineCtx = onlineCanvas.getContext('2d');
+        let gameLoop;
+        let gameMode = 'single';
+
+        // Добавляем новые переменные для магазина
+        let totalCoins = parseInt(localStorage.getItem('snakeGameCoins')) || 0;
+        let ownedItems = JSON.parse(localStorage.getItem('snakeGameItems')) || [];
+        let currentSnakeColor = '#4CAF50';
+        let pointsMultiplier = 1;
+
+        function toggleGame(mode) {
+            gameMode = mode;
+            const gameContainer = document.getElementById('gameContainer');
+            const onlineGameContainer = document.getElementById('onlineGameContainer');
+            
+            if (mode === 'single') {
+                onlineGameContainer.style.display = 'none';
+                if (gameContainer.style.display === 'none' || !gameContainer.style.display) {
+                    gameContainer.style.display = 'block';
+                    startGame();
+                } else {
+                    gameContainer.style.display = 'none';
+                    stopGame();
+                }
+            } else {
+                gameContainer.style.display = 'none';
+                if (onlineGameContainer.style.display === 'none' || !onlineGameContainer.style.display) {
+                    onlineGameContainer.style.display = 'block';
+                    startOnlineGame();
+                } else {
+                    onlineGameContainer.style.display = 'none';
+                    stopGame();
+                }
+            }
+        }
+
+        function startOnlineGame() {
+            if (gameStarted) return;
+            gameStarted = true;
+            snake = [
+                {x: 100, y: 200},
+                {x: 80, y: 200},
+                {x: 60, y: 200},
+            ];
+            botSnake = [
+                {x: 500, y: 200},
+                {x: 520, y: 200},
+                {x: 540, y: 200},
+            ];
+            score = 0;
+            botScore = 0;
+            document.getElementById('playerScore').textContent = score;
+            document.getElementById('botScore').textContent = botScore;
+            createFood();
+            gameLoop = setInterval(onlineGameStep, 100);
+            document.addEventListener('keydown', handleKeyPress);
+        }
+
+        function startGame() {
+            if (gameStarted) return;
+            gameStarted = true;
+            snake = [
+                {x: 200, y: 200},
+                {x: 180, y: 200},
+                {x: 160, y: 200},
+            ];
+            score = 0;
+            document.getElementById('score').textContent = score;
+            createFood();
+            gameLoop = setInterval(gameStep, 100);
+            document.addEventListener('keydown', handleKeyPress);
+        }
+
+        function stopGame() {
+            gameStarted = false;
+            clearInterval(gameLoop);
+            document.removeEventListener('keydown', handleKeyPress);
+        }
+
+        function createFood() {
+            const currentCanvas = gameMode === 'single' ? canvas : onlineCanvas;
+            food = {
+                x: Math.floor(Math.random() * (currentCanvas.width / gridSize)) * gridSize,
+                y: Math.floor(Math.random() * (currentCanvas.height / gridSize)) * gridSize
+            };
+        }
+
+        function botAI() {
+            const head = botSnake[0];
+            const dx = food.x - head.x;
+            const dy = food.y - head.y;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0 && botDirection !== 'left') botDirection = 'right';
+                else if (dx < 0 && botDirection !== 'right') botDirection = 'left';
+            } else {
+                if (dy > 0 && botDirection !== 'up') botDirection = 'down';
+                else if (dy < 0 && botDirection !== 'down') botDirection = 'up';
+            }
+        }
+
+        function handleKeyPress(event) {
+            switch(event.key) {
+                case 'ArrowUp':
+                    if (direction !== 'down') direction = 'up';
+                    break;
+                case 'ArrowDown':
+                    if (direction !== 'up') direction = 'down';
+                    break;
+                case 'ArrowLeft':
+                    if (direction !== 'right') direction = 'left';
+                    break;
+                case 'ArrowRight':
+                    if (direction !== 'left') direction = 'right';
+                    break;
+            }
+        }
+
+        function moveSnake(snakeArray, currentDirection) {
+            const head = {x: snakeArray[0].x, y: snakeArray[0].y};
+            
+            switch(currentDirection) {
+                case 'up': head.y -= gridSize; break;
+                case 'down': head.y += gridSize; break;
+                case 'left': head.x -= gridSize; break;
+                case 'right': head.x += gridSize; break;
+            }
+
+            return head;
+        }
+
+        function onlineGameStep() {
+            const playerHead = moveSnake(snake, direction);
+            const botHead = moveSnake(botSnake, botDirection);
+
+            if (playerHead.x < 0 || playerHead.x >= onlineCanvas.width || 
+                playerHead.y < 0 || playerHead.y >= onlineCanvas.height ||
+                snake.some(segment => segment.x === playerHead.x && segment.y === playerHead.y) ||
+                botSnake.some(segment => segment.x === playerHead.x && segment.y === playerHead.y)) {
+                stopGame();
+                alert('Игра окончена! Игрок проиграл!\nИгрок: ' + score + '\nБот: ' + botScore);
+                toggleGame('online');
+                return;
+            }
+
+            if (botHead.x < 0 || botHead.x >= onlineCanvas.width || 
+                botHead.y < 0 || botHead.y >= onlineCanvas.height ||
+                botSnake.some(segment => segment.x === botHead.x && segment.y === botHead.y) ||
+                snake.some(segment => segment.x === botHead.x && segment.y === botHead.y)) {
+                stopGame();
+                alert('Игра окончена! Бот проиграл!\nИгрок: ' + score + '\nБот: ' + botScore);
+                toggleGame('online');
+                return;
+            }
+
+            snake.unshift(playerHead);
+            botSnake.unshift(botHead);
+
+            if (playerHead.x === food.x && playerHead.y === food.y) {
+                addScore(10);
+                createFood();
+            } else {
+                snake.pop();
+            }
+
+            if (botHead.x === food.x && botHead.y === food.y) {
+                botScore += 10;
+                document.getElementById('botScore').textContent = botScore;
+                createFood();
+            } else {
+                botSnake.pop();
+            }
+
+            botAI();
+
+            onlineCtx.clearRect(0, 0, onlineCanvas.width, onlineCanvas.height);
+            drawSnake(onlineCtx, snake);
+            onlineCtx.fillStyle = '#FF5722';
+            botSnake.forEach(segment => {
+                onlineCtx.fillRect(segment.x, segment.y, gridSize - 2, gridSize - 2);
+            });
+            onlineCtx.fillStyle = '#FFC107';
+            onlineCtx.fillRect(food.x, food.y, gridSize - 2, gridSize - 2);
+        }
+
+        function gameStep() {
+            const head = moveSnake(snake, direction);
+
+            if (head.x < 0 || head.x >= canvas.width || 
+                head.y < 0 || head.y >= canvas.height ||
+                snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                stopGame();
+                alert('Игра окончена! Счёт: ' + score);
+                toggleGame('single');
+                return;
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                addScore(10);
+                createFood();
+            } else {
+                snake.pop();
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSnake(ctx, snake);
+            ctx.fillStyle = '#FF5722';
+            ctx.fillRect(food.x, food.y, gridSize - 2, gridSize - 2);
+        }
+
+        // Добавляем функционал отзывов
+        function submitReview(event) {
+            event.preventDefault();
+            
+            const nameInput = document.getElementById('reviewName');
+            const textInput = document.getElementById('reviewText');
+            const name = nameInput.value.trim();
+            const text = textInput.value.trim();
+            
+            if (name && text) {
+                const review = {
+                    name: name,
+                    text: text,
+                    date: new Date().toLocaleDateString()
+                };
+                
+                // Сохраняем отзыв в localStorage
+                const reviews = JSON.parse(localStorage.getItem('snakeGameReviews') || '[]');
+                reviews.push(review);
+                localStorage.setItem('snakeGameReviews', JSON.stringify(reviews));
+                
+                // Очищаем форму
+                nameInput.value = '';
+                textInput.value = '';
+                
+                // Обновляем список отзывов
+                displayReviews();
+            }
+        }
+
+        function displayReviews() {
+            const reviewsList = document.getElementById('reviewsList');
+            const reviews = JSON.parse(localStorage.getItem('snakeGameReviews') || '[]');
+            
+            reviewsList.innerHTML = reviews.reverse().map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-name">${review.name}</span>
+                        <span class="review-date">${review.date}</span>
+                    </div>
+                    <div class="review-text">${review.text}</div>
+                </div>
+            `).join('');
+        }
+
+        // Отображаем отзывы при загрузке страницы
+        displayReviews();
+
+        function toggleShop() {
+            const shopContainer = document.getElementById('shopContainer');
+            const gameContainer = document.getElementById('gameContainer');
+            const onlineGameContainer = document.getElementById('onlineGameContainer');
+
+            if (shopContainer.style.display === 'none' || !shopContainer.style.display) {
+                shopContainer.style.display = 'block';
+                gameContainer.style.display = 'none';
+                onlineGameContainer.style.display = 'none';
+                updateShopDisplay();
+            } else {
+                shopContainer.style.display = 'none';
+            }
+        }
+
+        function updateShopDisplay() {
+            document.getElementById('totalCoins').textContent = totalCoins;
+            
+            // Обновляем состояние кнопок
+            const buttons = document.querySelectorAll('.buy-button');
+            buttons.forEach(button => {
+                const itemId = button.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (ownedItems.includes(itemId)) {
+                    button.textContent = 'Куплено';
+                    button.classList.add('owned');
+                    button.disabled = true;
+                }
+            });
+        }
+
+        function buyItem(itemId, price) {
+            if (totalCoins >= price && !ownedItems.includes(itemId)) {
+                totalCoins -= price;
+                ownedItems.push(itemId);
+                
+                // Сохраняем в localStorage
+                localStorage.setItem('snakeGameCoins', totalCoins);
+                localStorage.setItem('snakeGameItems', JSON.stringify(ownedItems));
+                
+                // Применяем эффект
+                applyItem(itemId);
+                
+                // Обновляем отображение
+                updateShopDisplay();
+            }
+        }
+
+        function applyItem(itemId) {
+            switch(itemId) {
+                case 'orange_snake':
+                    currentSnakeColor = '#FF5722';
+                    break;
+                case 'blue_snake':
+                    currentSnakeColor = '#2196F3';
+                    break;
+                case 'rainbow_snake':
+                    currentSnakeColor = 'rainbow';
+                    break;
+                case 'double_points':
+                    pointsMultiplier = 2;
+                    break;
+            }
+        }
+
+        // Модифицируем функции начисления очков
+        function addScore(amount) {
+            const points = amount * pointsMultiplier;
+            score += points;
+            totalCoins += Math.floor(points / 2); // Получаем монеты за очки
+            localStorage.setItem('snakeGameCoins', totalCoins);
+            
+            if (gameMode === 'single') {
+                document.getElementById('score').textContent = score;
+            } else {
+                document.getElementById('playerScore').textContent = score;
+            }
+        }
+
+        // Модифицируем функцию отрисовки змейки
+        function drawSnake(ctx, snakeArray) {
+            if (currentSnakeColor === 'rainbow') {
+                snakeArray.forEach((segment, index) => {
+                    ctx.fillStyle = `hsl(${(index * 30) % 360}, 70%, 50%)`;
+                    ctx.fillRect(segment.x, segment.y, gridSize - 2, gridSize - 2);
+                });
+            } else {
+                ctx.fillStyle = currentSnakeColor;
+                snakeArray.forEach(segment => {
+                    ctx.fillRect(segment.x, segment.y, gridSize - 2, gridSize - 2);
+                });
+            }
+        }
+
+        // Загружаем сохраненные предметы при старте
+        window.addEventListener('load', () => {
+            ownedItems.forEach(itemId => applyItem(itemId));
+            updateShopDisplay();
+        });
+    </script>
+</body>
+</html> 
